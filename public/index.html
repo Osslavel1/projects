@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Native Exploit Framework Console</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --border-color: #30363d;
+            --text-color: #c9d1d9;
+            --accent-green: #2ea043;
+            --accent-blue: #58a6ff;
+            --accent-red: #f85149;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        header h1 {
+            color: var(--accent-blue);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #8b949e;
+            font-size: 0.95rem;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        button {
+            background-color: var(--accent-green);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #238636;
+        }
+
+        .terminal {
+            background-color: #010409;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 15px;
+            height: 480px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            line-height: 1.4;
+            direction: ltr;
+            text-align: left;
+        }
+
+        .log-info {
+            color: var(--accent-blue);
+        }
+
+        .log-success {
+            color: var(--accent-green);
+        }
+
+        .log-error {
+            color: var(--accent-red);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Native Exploit Framework Console</h1>
+            <p>لوحة التحكم السحابية المباشرة لتشغيل محرك الذاكرة البرمجي</p>
+        </header>
+
+        <div class="controls">
+            <button onclick="runExploitChain()">تشغيل السلسلة (Execute Exploit Chain)</button>
+        </div>
+
+        <div class="terminal" id="terminal-output">
+            <div class="log-info">[*] Client console interface initialized. Ready to trigger execution...</div>
+        </div>
+    </div>
+
+    <script>
+        function logToTerminal(message, type = 'info') {
+            const terminal = document.getElementById('terminal-output');
+            const div = document.createElement('div');
+            div.className = `log-${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            terminal.appendChild(div);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        async function runExploitChain() {
+            logToTerminal('[*] Sending remote execution trigger to backend server...', 'info');
+            try {
+                const response = await fetch('/run-engine');
+                const data = await response.json();
+
+                if (data.logs && data.logs.length > 0) {
+                    data.logs.forEach(log => {
+                        let type = 'info';
+                        if (log.includes('[+]')) type = 'success';
+                        if (log.includes('[!]')) type = 'error';
+                        logToTerminal(log, type);
+                    });
+                }
+
+                if (data.success) {
+                    logToTerminal('[+] Execution chain completed successfully on server.', 'success');
+                } else {
+                    logToTerminal('[!] Execution halted due to an exception.', 'error');
+                }
+            } catch (err) {
+                logToTerminal('[!] Network communication failed: ' + err.message, 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>
