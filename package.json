@@ -4,10 +4,16 @@
   "description": "",
   "main": "ssl_pinning_bypass.js",
   "scripts": {
+    "start": "node ssl_pinning_bypass.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.19.2",
+    "ffi-napi": "^4.0.3",
+    "ref-napi": "^3.0.3"
+  }
 }
