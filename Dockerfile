@@ -1,6 +1,6 @@
 FROM node:18-bullseye
 
-# تثبيت أدوات التجميع ومكتبات النظام اللازمة لتنجح حزم ffi-napi في البناء
+# تثبيت أدوات النظام الأساسية ومكتبات التجميع الضرورية لـ node-gyp و ffi-napi
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
@@ -11,9 +11,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
+# نسخ ملفات الاعتمادات أولاً
 COPY package.json ./
-RUN npm install
 
+# تثبيت الحزم مع السماح بإعادة بناء الحزم الثنائية
+RUN npm install --build-from-source
+
+# نسخ باقي ملفات المشروع
 COPY . .
 
 EXPOSE 3000
