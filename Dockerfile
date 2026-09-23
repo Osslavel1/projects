@@ -1,5 +1,6 @@
-FROM node:18-bullseye
+FROM node:16-buster
 
+# تحديث وتثبيت أدوات التوزيع ومكتبات النظام الحيوية لـ node-gyp
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
@@ -11,7 +12,9 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 COPY package.json ./
-RUN npm install --build-from-source
+
+# تثبيت الحزم مع دعم التجميع المباشر
+RUN npm install --unsafe-perm --build-from-source
 
 COPY . .
 
