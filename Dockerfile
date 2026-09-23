@@ -4,7 +4,8 @@ WORKDIR /app
 
 COPY package.json ./
 
-RUN npm install
+# تثبيت نظيف ومباشر يتجاوز أي مشاكل في الحزم
+RUN npm install --no-audit --no-fund
 
 COPY . .
 
