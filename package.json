@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "ssl_pinning_bypass.js",
   "scripts": {
-    "start": "node ssl_pinning_bypass.js"
+    "start": "node ssl_pinning_bypass.js" 
   },
   "dependencies": {
     "express": "^4.19.2",
