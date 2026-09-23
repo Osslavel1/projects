@@ -1,7 +1,12 @@
-FROM node:16-buster
+FROM node:18-bullseye
 
-# تحديث وتثبيت أدوات التوزيع ومكتبات النظام الحيوية لـ node-gyp
-RUN apt-get update && apt-get install -y \
+# تحديث مستودعات النظام وضبطها للإصدارات المستقرة
+RUN sed -i 's/deb.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i 's/security.debian.org/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i '/buster-updates/d' /etc/apt/sources.list || true
+
+# تثبيت أدوات النظام المطلوبة لـ node-gyp و ffi-napi
+RUN apt-get update --allow-insecure-repositories || apt-get update && apt-get install -y --allow-unauthenticated \
     python3 \
     make \
     g++ \
@@ -13,8 +18,8 @@ WORKDIR /app
 
 COPY package.json ./
 
-# تثبيت الحزم مع دعم التجميع المباشر
-RUN npm install --unsafe-perm --build-from-source
+# تثبيت الحزم وتجميعها
+RUN npm install --build-from-source
 
 COPY . .
 
