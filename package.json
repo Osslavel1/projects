@@ -6,6 +6,8 @@
     "start": "node ssl_pinning_bypass.js"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "ffi-napi": "^4.0.3",
+    "ref-napi": "^3.0.3"
   }
 }
