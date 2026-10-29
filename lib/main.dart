@@ -9,8 +9,10 @@ const cyan = Color(0xFF43D5F5);
 const bg = Color(0xFFF4F7FB);
 const muted = Color(0xFF718198);
 
-// Set this at build time, e.g. --dart-define=AI_API_BASE_URL=https://your-api.example.com
-const apiBaseUrl = String.fromEnvironment('AI_API_BASE_URL', defaultValue: 'http://10.0.2.2:3000');
+const apiBaseUrl = String.fromEnvironment(
+  'AI_API_BASE_URL',
+  defaultValue: 'https://site--natco-merchant-ai--mw6pjw7sw7wl.code.run',
+);
 
 void main() => runApp(const NatcoAiApp());
 
