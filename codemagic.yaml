@@ -1,22 +1,30 @@
 workflows:
-  natco-merchant-ai-android:
-    name: NATCO Merchant AI - Android APK
-    max_build_duration: 60
-    instance_type: mac_mini_m2
-    environment:
-      flutter: stable
-      java: 17
-    scripts:
-      - name: Generate Android platform files if missing
-        script: |
-          if [ ! -d android ]; then
-            flutter create --platforms=android .
-          fi
-      - name: Get Flutter dependencies
-        script: flutter pub get
-      - name: Analyze Flutter project
-        script: flutter analyze --no-fatal-infos --no-fatal-warnings
-      - name: Build release APK
-        script: flutter build apk --release --dart-define=AI_API_BASE_URL=$AI_API_BASE_URL
-    artifacts:
-      - build/**/outputs/**/*.apk
+natco-merchant-ai-android:
+name: NATCO Merchant AI - Android APK
+max_build_duration: 60
+instance_type: mac_mini_m2
+
+environment:
+  groups:
+    - natco-ai-config
+  flutter: stable
+  java: 17
+
+scripts:
+  - name: Generate Android platform files if missing
+    script: |
+      if [ ! -d android ]; then
+        flutter create --platforms=android .
+      fi
+
+  - name: Get Flutter dependencies
+    script: flutter pub get
+
+  - name: Analyze Flutter project
+    script: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+  - name: Build release APK
+    script: flutter build apk --release --dart-define=AI_API_BASE_URL=$AI_API_BASE_URL
+
+artifacts:
+  - build/**/outputs/**/*.apk
