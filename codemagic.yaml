@@ -18,14 +18,25 @@ scripts:
       fi
 
   - name: Get Flutter dependencies
-    script: flutter pub get
+    script: |
+      flutter pub get
 
   - name: Analyze Flutter project
-    script: flutter analyze --no-fatal-infos --no-fatal-warnings
+    script: |
+      flutter analyze --no-fatal-infos --no-fatal-warnings
+
+  - name: Verify API configuration
+    script: |
+      if [ -z "$AI_API_BASE_URL" ]; then
+        echo "ERROR: AI_API_BASE_URL is not configured."
+        exit 1
+      fi
+      echo "AI_API_BASE_URL is configured."
 
   - name: Build release APK
     script: |
-      flutter build apk --release --dart-define=AI_API_BASE_URL="$AI_API_BASE_URL"
+      flutter build apk --release \
+        --dart-define=AI_API_BASE_URL="$AI_API_BASE_URL"
 
 artifacts:
-  - build/**/outputs/**/*.apk
+  - build/app/outputs/flutter-apk/app-release.apk
