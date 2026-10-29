@@ -1,11 +1,9 @@
 {
-  "name": "adimi",
+  "name": "natco-merchant-ai-server",
   "version": "1.0.0",
-  "main": "ssl_pinning_bypass.js",
-  "scripts": {
-    "start": "node ssl_pinning_bypass.js"
-  },
-  "dependencies": {
-    "express": "^4.19.2"
-  }
+  "private": true,
+  "description": "Secure backend proxy for NATCO Merchant AI chat",
+  "type": "module",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=20" }
 }
