@@ -1,1 +1,9 @@
-غنن
+{
+  "name": "natco-merchant-ai-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Secure backend proxy for NATCO Merchant AI chat",
+  "type": "module",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=20" }
+}
