@@ -834,9 +834,11 @@ class ProductMiniCard extends StatelessWidget {
           ]),
         ),
       );
+} // <--- تم إضافة القوس الناقص هنا لإغلاق كلاس ProductMiniCard بنجاح
 
 class _BadgeIcon extends StatelessWidget {
-  final IconData icon; final int count;
+  final IconData icon; 
+  final int count;
   const _BadgeIcon({required this.icon, required this.count});
   @override
   Widget build(BuildContext context) => Stack(clipBehavior: Clip.none, children: [
