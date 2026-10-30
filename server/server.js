@@ -1,8 +1,9 @@
 import http from 'node:http';
 
 const PORT = Number(process.env.PORT || 8080);
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+// استخدام نموذج Llama المجاني والسريع عبر Groq
+const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 const MAX_BODY_BYTES = 100_000;
 
 const server = http.createServer(async (req, res) => {
@@ -13,18 +14,17 @@ const server = http.createServer(async (req, res) => {
   
   if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
   
-  // نقطة التحقق من الصحة (Health Check) التي تتطابق مع استجابة خادمك الحالية
   if (req.method === 'GET' && req.url === '/health') {
     res.writeHead(200); 
-    return res.end(JSON.stringify({ ok: true, service: 'natco-merchant-ai' }));
+    return res.end(JSON.stringify({ ok: true, service: 'natco-merchant-ai-groq' }));
   }
   
   if (req.method !== 'POST' || req.url !== '/api/chat') {
     res.writeHead(404); return res.end(JSON.stringify({ error: 'المسار غير موجود.' }));
   }
   
-  if (!OPENAI_API_KEY) {
-    res.writeHead(503); return res.end(JSON.stringify({ error: 'خدمة AI غير مهيأة: أضف OPENAI_API_KEY إلى متغيرات بيئة الخادم.' }));
+  if (!GROQ_API_KEY) {
+    res.writeHead(503); return res.end(JSON.stringify({ error: 'خدمة AI غير مهيأة: أضف GROQ_API_KEY إلى متغيرات بيئة الخادم.' }));
   }
   
   try {
@@ -46,33 +46,36 @@ const server = http.createServer(async (req, res) => {
       content: String(item?.content || '').slice(0, 8000),
     })) : [];
     
-    const input = [...history, { role: 'user', content: message }];
+    // تجهيز الرسائل بالصيغة المدعومة (System prompt + History + User message)
+    const messages = [
+      {
+        role: 'system',
+        content: 'أنت مساعد ذكاء اصطناعي محترف لتجار التجزئة وأصحاب الأعمال في اليمن والمنطقة العربية. أجب باللغة العربية ما لم يطلب المستخدم غير ذلك. كن عمليًا، واضحًا، منظمًا. لا تدّعِ الوصول المباشر إلى أنظمة NATCO أو المحافظ الإلكترونية.'
+      },
+      ...history,
+      { role: 'user', content: message }
+    ];
     
-    const aiResponse = await fetch('https://api.openai.com/v1/responses', {
+    // الاتصال بمنصة Groq المجانية
+    const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
+      headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: OPENAI_MODEL,
-        instructions: 'أنت مساعد ذكاء اصطناعي محترف لتجار التجزئة وأصحاب الأعمال في اليمن والمنطقة العربية. أجب باللغة العربية ما لم يطلب المستخدم غير ذلك. كن عمليًا، واضحًا، منظمًا، واطرح أسئلة توضيحية عند نقص المعلومات. ساعد في التسويق والمبيعات وخدمة العملاء وإدارة المتجر والتخطيط التجاري. لا تدّعِ الوصول إلى أنظمة NATCO أو المخزون أو الأسعار أو الطلبات أو المحافظ الإلكترونية؛ لا تملك أي تكامل مباشر معها في هذه النسخة. لا تختلق حقائق أو نتائج. لا تقدم نفسك كموظف رسمي في NATCO.',
-        input,
-        max_output_tokens: 1000,
+        model: GROQ_MODEL,
+        messages,
+        max_tokens: 1000,
       }),
       signal: AbortSignal.timeout(65000),
     });
     
     const payload = await aiResponse.json().catch(() => ({}));
     if (!aiResponse.ok) {
-      const status = aiResponse.status;
-      console.error('OpenAI API error:', status, JSON.stringify(payload).slice(0, 1200));
-      const errorMsg = status === 401 ? 'مفتاح OpenAI غير صحيح أو غير صالح.'
-        : status === 429 ? 'تم تجاوز حد الاستخدام أو لا يوجد رصيد كافٍ في حساب AI. تحقق من الفوترة والحدود.'
-        : 'تعذّر على خدمة الذكاء الاصطناعي إكمال الطلب. حاول مرة أخرى لاحقًا.';
-      res.writeHead(502); return res.end(JSON.stringify({ error: errorMsg }));
+      console.error('Groq API error:', aiResponse.status, JSON.stringify(payload));
+      res.writeHead(502); 
+      return res.end(JSON.stringify({ error: payload.error?.message || 'تعذّر إكمال الطلب عبر خدمة AI المجانية.' }));
     }
     
-    const reply = (payload.output || []).flatMap(item => item.content || [])
-      .filter(item => item.type === 'output_text').map(item => item.text || '').join('\n').trim();
-      
+    const reply = payload.choices?.[0]?.message?.content?.trim() || '';
     if (!reply) {
       res.writeHead(502); return res.end(JSON.stringify({ error: 'لم تُرجع خدمة AI نصًا. حاول مجددًا.' }));
     }
@@ -84,4 +87,4 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, '0.0.0.0', () => console.log(`NATCO AI server listening on port ${PORT}`));
+server.listen(PORT, '0.0.0.0', () => console.log(`NATCO Groq AI server listening on port ${PORT}`));
