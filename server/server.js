@@ -53,12 +53,12 @@ const server = http.createServer(async (req, res) => {
       { role: 'user', content: message }
     ];
     
-    // استخدام النموذج الجديد المعتمد والنشط حالياً لدى Groq
+    // استخدام النموذج الأحدث المعتمد حالياً في Groq
     const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'llama-3.3-70b-versatile',
         messages,
         max_tokens: 1000,
       }),
