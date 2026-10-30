@@ -692,7 +692,8 @@ class DashboardPage extends StatelessWidget {
 class CatalogPage extends StatefulWidget {
   final void Function(Product) onOpen, onAdd;
   const CatalogPage({super.key, required this.onOpen, required this.onAdd});
-  @override State<CatalogPage> createState() => _CatalogPageState();
+  @override
+  State<CatalogPage> createState() => _CatalogPageState();
 }
 
 class _CatalogPageState extends State<CatalogPage> {
@@ -767,28 +768,4 @@ class ProfilePage extends StatelessWidget {
         subtitle: 'إدارة الحساب والمتجر',
         child: Column(children: [
           ListTile(leading: const Icon(Icons.store), title: const Text('معلومات المتجر'), onTap: () => onNavigate('معلومات المتجر')),
-          ListTile(leading: const Icon(Icons.logout, color: Colors.red), title: const Text('تسجيل الخروج', style: TextStyle(color: Colors.red)), onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const AuthScreen()), (_) => false)),
-        ]),
-      );
-}
-
-class UtilityPage extends StatelessWidget {
-  final String title;
-  const UtilityPage({super.key, required this.title});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: Text(title)), body: Center(child: Text(title)));
-}
-
-class ProductDetailsPage extends StatelessWidget {
-  final Product product;
-  final ValueChanged<int> onAdd;
-  const ProductDetailsPage({super.key, required this.product, required this.onAdd});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(product.name)),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(children: [
-            Text(product.description),
-            const Spacer(),
-            FilledButton(onPressed: () { onAdd(1); Navigator.pop(context); }, child: const
+          ListTile(leading: const Icon(Icons.logout, color: Colors.red), title: const Text('تسجيل الخروج', style: TextStyle(color: Colors.red)),
