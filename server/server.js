@@ -1,9 +1,7 @@
 import http from 'node:http';
 
 const PORT = Number(process.env.PORT || 8080);
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
-// استخدام نموذج Llama المجاني والسريع عبر Groq
-const GROQ_MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+const GROG_API_KEY = process.env.GROQ_API_KEY;
 const MAX_BODY_BYTES = 100_000;
 
 const server = http.createServer(async (req, res) => {
@@ -23,7 +21,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(404); return res.end(JSON.stringify({ error: 'المسار غير موجود.' }));
   }
   
-  if (!GROQ_API_KEY) {
+  if (!GROG_API_KEY) {
     res.writeHead(503); return res.end(JSON.stringify({ error: 'خدمة AI غير مهيأة: أضف GROQ_API_KEY إلى متغيرات بيئة الخادم.' }));
   }
   
@@ -46,22 +44,21 @@ const server = http.createServer(async (req, res) => {
       content: String(item?.content || '').slice(0, 8000),
     })) : [];
     
-    // تجهيز الرسائل بالصيغة المدعومة (System prompt + History + User message)
     const messages = [
       {
         role: 'system',
-        content: 'أنت مساعد ذكاء اصطناعي محترف لتجار التجزئة وأصحاب الأعمال في اليمن والمنطقة العربية. أجب باللغة العربية ما لم يطلب المستخدم غير ذلك. كن عمليًا، واضحًا، منظمًا. لا تدّعِ الوصول المباشر إلى أنظمة NATCO أو المحافظ الإلكترونية.'
+        content: 'أنت مساعد ذكاء اصطناعي محترف لتجار التجزئة وأصحاب الأعمال في اليمن والمنطقة العربية. أجب باللغة العربية ما لم يطلب المستخدم غير ذلك. كن عمليًا، واضحًا، منظمًا.'
       },
       ...history,
       { role: 'user', content: message }
     ];
     
-    // الاتصال بمنصة Groq المجانية
+    // استخدام النموذج المعتمد والمتاح مجاناً في Groq مباشرة داخل الكود بدون أخطاء نسخ
     const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+      headers: { 'Authorization': `Bearer ${GROG_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: GROQ_MODEL,
+        model: 'llama3-8b-8192',
         messages,
         max_tokens: 1000,
       }),
