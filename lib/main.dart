@@ -12,7 +12,7 @@ const bg = Color(0xFFF4F7FB);
 const muted = Color(0xFF718198);
 const line = Color(0xFFE4EAF1);
 
-// رابط الخادم الخاص بك المتصل بالذكاء الاصطناعي[span_0](start_span)[span_0](end_span)
+// رابط الخادم المتصل بالذكاء الاصطناعي
 const apiBaseUrl = String.fromEnvironment(
   'AI_API_BASE_URL',
   defaultValue: 'https://site--natco-merchant-ai--mw6pjw7sw7wl.code.run',
