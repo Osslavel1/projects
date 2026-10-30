@@ -1,7 +1,7 @@
 import http from 'node:http';
 
 const PORT = Number(process.env.PORT || 8080);
-const GROG_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const MAX_BODY_BYTES = 100_000;
 
 const server = http.createServer(async (req, res) => {
@@ -21,7 +21,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(404); return res.end(JSON.stringify({ error: 'المسار غير موجود.' }));
   }
   
-  if (!GROG_API_KEY) {
+  if (!GROQ_API_KEY) {
     res.writeHead(503); return res.end(JSON.stringify({ error: 'خدمة AI غير مهيأة: أضف GROQ_API_KEY إلى متغيرات بيئة الخادم.' }));
   }
   
@@ -53,12 +53,12 @@ const server = http.createServer(async (req, res) => {
       { role: 'user', content: message }
     ];
     
-    // استخدام النموذج المعتمد والمتاح مجاناً في Groq مباشرة داخل الكود بدون أخطاء نسخ
+    // استخدام النموذج الجديد المعتمد والنشط حالياً لدى Groq
     const aiResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${GROG_API_KEY}`, 'Content-Type': 'application/json' },
+      headers: { 'Authorization': `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: 'llama3-8b-8192',
+        model: 'llama-3.1-8b-instant',
         messages,
         max_tokens: 1000,
       }),
