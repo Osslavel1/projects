@@ -302,7 +302,7 @@ class DemoOrder {
   DemoOrder(this.id, this.date, this.status, this.payment, this.total, this.lines);
 }
 
-// واجهة التاجر الرئيسية المدمجة (مع تبويب الذكاء الاصطناعي الخادم الحقيقي)
+// واجهة التاجر الرئيسية المدمجة
 class MerchantShell extends StatefulWidget {
   const MerchantShell({super.key});
   @override
@@ -341,7 +341,7 @@ class _MerchantShellState extends State<MerchantShell> {
       CatalogPage(onAdd: add, onOpen: _productDetails),
       OrdersPage(orders: orders, onOpen: _orderDetails, onReorder: (o) { for (final e in o.lines) add(e.key, e.value); setState(() => tab = 3); _toast(context, 'تمت إضافة المنتجات للسلة'); }),
       CartPage(cart: cart, onQty: setQty, total: cartTotal, onCheckout: placeOrder, onBrowse: () => setState(() => tab = 1)),
-      const AiChatScreenTab(), // تبويب مساعد الذكاء الاصطناعي الحقيقي المتصل بالخادم الخاص بك
+      const AiChatScreenTab(),
       ProfilePage(onNavigate: (destination) => _openUtility(destination)),
     ];
 
@@ -357,7 +357,7 @@ class _MerchantShellState extends State<MerchantShell> {
           const NavigationDestination(icon: Icon(Icons.grid_view_rounded), label: 'الرئيسية'),
           const NavigationDestination(icon: Icon(Icons.widgets_outlined), label: 'الكتالوج'),
           const NavigationDestination(icon: Icon(Icons.receipt_long_outlined), label: 'الطلبات'),
-          NavigationDestination(icon: _BadgeIcon(icon: Icon(Icons.shopping_bag_outlined).icon, count: cartCount), label: 'السلة'),
+          NavigationDestination(icon: _BadgeIcon(icon: Icons.shopping_bag_outlined, count: cartCount), label: 'السلة'),
           const NavigationDestination(icon: Icon(Icons.auto_awesome_rounded), label: 'المساعد الذكي'),
           const NavigationDestination(icon: Icon(Icons.person_outline_rounded), label: 'حسابي'),
         ],
@@ -370,7 +370,7 @@ class _MerchantShellState extends State<MerchantShell> {
   void _openUtility(String title) => Navigator.push(context, MaterialPageRoute(builder: (_) => UtilityPage(title: title)));
 }
 
-// شاشة مساعد الذكاء الاصطناعي الذكي (متصلة بالخادم الحقيقي عبر API)
+// شاشة مساعد الذكاء الاصطناعي الذكي
 class AiChatScreenTab extends StatefulWidget {
   const AiChatScreenTab({super.key});
   @override
@@ -610,7 +610,7 @@ class _TypingBubble extends StatelessWidget {
         ),
       );
 
-// لوحة التحكم الرئيسية (Dashboard)
+// لوحة التحكم الرئيسية
 class DashboardPage extends StatelessWidget {
   final List<DemoOrder> orders;
   final int cartCount;
@@ -663,6 +663,28 @@ class DashboardPage extends StatelessWidget {
           ],
         ),
       );
+
+  Widget _metric(String label, String value, IconData icon, Color color, VoidCallback onTap) => Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: line)),
+            child: Row(children: [
+              Container(width: 44, height: 44, decoration: BoxDecoration(color: color.withOpacity(.1), borderRadius: BorderRadius.circular(12)), child: Icon(icon, color: color)),
+              const SizedBox(width: 12),
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(label, style: const TextStyle(color: muted, fontSize: 11)),
+                const SizedBox(height: 2),
+                Text(value, style: const TextStyle(color: navy, fontSize: 18, fontWeight: FontWeight.w900)),
+              ]),
+            ]),
+          ),
+        ),
+      );
 }
 
 // شاشة الكتالوج
@@ -705,7 +727,7 @@ class CartPage extends StatelessWidget {
       title: 'سلة المشتريات',
       subtitle: 'راجع المنتجات قبل إتمام الطلب',
       child: lines.isEmpty
-          ? Center(child: Padding(padding: const EdgeInsets.all(30), child: Column(children: [const Text('السلة فارغة'), const SizedBox(height: 10), FilledButton(onPressed: onBrowse, child: const Text('تصفح المنتجات'))]))
+          ? Center(child: Padding(padding: const EdgeInsets.all(30), child: Column(children: [const Text('السلة فارغة'), const SizedBox(height: 10), FilledButton(onPressed: onBrowse, child: const Text('تصفح المنتجات'))])))
           : Column(
               children: [
                 ...lines.map((e) => ListTile(title: Text(e.key.name), subtitle: Text('${e.value} × ${_money(e.key.price)}'))),
@@ -834,7 +856,7 @@ class ProductMiniCard extends StatelessWidget {
           ]),
         ),
       );
-} // <--- تم إضافة القوس الناقص هنا لإغلاق كلاس ProductMiniCard بنجاح
+}
 
 class _BadgeIcon extends StatelessWidget {
   final IconData icon; 
