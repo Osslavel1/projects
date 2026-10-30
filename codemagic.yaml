@@ -1,40 +1,40 @@
 workflows:
-  natco-merchant-ai-android:
-    name: NATCO Merchant AI - Android APK
-    max_build_duration: 60
-    instance_type: mac_mini_m2
+natco-merchant-ai-android:
+name: NATCO Merchant AI - Android APK
+max_build_duration: 60
+instance_type: mac_mini_m2
 
-    environment:
-      flutter: stable
-      java: 17
-      groups:
-        - natco-ai-config
+environment:
+  flutter: stable
+  java: 17
+  groups:
+    - natco-ai-config
 
-    scripts:
-      - name: Generate Android platform files if missing
-        script: |
-          if [ ! -d android ]; then
-            flutter create --platforms=android .
-          fi
+scripts:
+  - name: Generate Android platform files if missing
+    script: |
+      if [ ! -d android ]; then
+        flutter create --platforms=android .
+      fi
 
-      - name: Get Flutter dependencies
-        script: flutter pub get
+  - name: Get Flutter dependencies
+    script: flutter pub get
 
-      - name: Analyze Flutter project
-  script: flutter analyze --no-fatal-infos --no-fatal-warnings lib/
+  - name: Analyze Flutter project
+    script: flutter analyze --no-fatal-infos --no-fatal-warnings lib/
 
-      - name: Verify API configuration
-        script: |
-          if [ -z "$AI_API_BASE_URL" ]; then
-            echo "ERROR: AI_API_BASE_URL is not configured."
-            exit 1
-          fi
-          echo "AI_API_BASE_URL is configured."
+  - name: Verify API configuration
+    script: |
+      if [ -z "$AI_API_BASE_URL" ]; then
+        echo "ERROR: AI_API_BASE_URL is not configured."
+        exit 1
+      fi
+      echo "AI_API_BASE_URL is configured."
 
-      - name: Build release APK
-        script: |
-          flutter build apk --release \
-            --dart-define=AI_API_BASE_URL="$AI_API_BASE_URL"
+  - name: Build release APK
+    script: |
+      flutter build apk --release \
+        --dart-define=AI_API_BASE_URL="$AI_API_BASE_URL"
 
-    artifacts:
-      - build/app/outputs/flutter-apk/app-release.apk
+artifacts:
+  - build/app/outputs/flutter-apk/app-release.apk
