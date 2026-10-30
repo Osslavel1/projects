@@ -332,7 +332,7 @@ class _MerchantShellState extends State<MerchantShell> {
       cart.clear();
       tab = 2;
     });
-    _toast(context, 'تم إنشاء طلب تجريبي بنجاح');
+    _toast('تم إنشاء طلب تجريبي بنجاح');
   }
 
   @override
@@ -348,7 +348,7 @@ class _MerchantShellState extends State<MerchantShell> {
             add(e.key, e.value);
           }
           setState(() => tab = 3);
-          _toast(context, 'تمت إضافة المنتجات للسلة');
+          _toast('تمت إضافة المنتجات للسلة');
         },
       ),
       CartPage(cart: cart, onQty: setQty, total: cartTotal, onCheckout: placeOrder, onBrowse: () => setState(() => tab = 1)),
@@ -376,7 +376,7 @@ class _MerchantShellState extends State<MerchantShell> {
     );
   }
 
-  void _productDetails(Product p) => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsPage(product: p, onAdd: (q) { add(p, q); _toast(context, 'تمت إضافة ${p.name} للسلة'); })));
+  void _productDetails(Product p) => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsPage(product: p, onAdd: (q) { add(p, q); _toast('تمت إضافة ${p.name} للسلة'); })));
   void _orderDetails(DemoOrder o) => Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDetailsPage(
         order: o,
         onReorder: () {
@@ -720,7 +720,7 @@ class _CatalogPageState extends State<CatalogPage> {
   String query = '';
   @override
   Widget build(BuildContext context) {
-    final filtered = demoProducts.where((p) => '${p.name}${p.sku}'.toLowerCase().contains(query.toLowerCase())).toList();
+    final filtered = demoProducts.where((p) => '${p.name} ${p.sku}'.toLowerCase().contains(query.toLowerCase())).toList();
     return PageFrame(
       title: 'الكتالوج',
       subtitle: 'تصفح المنتجات المتاحة',
@@ -748,4 +748,152 @@ class CartPage extends StatelessWidget {
     final lines = cart.entries.map((e) => MapEntry(demoProducts.firstWhere((p) => p.id == e.key), e.value)).toList();
     return PageFrame(
       title: 'سلة المشتريات',
-      
+      subtitle: 'راجع المنتجات قبل إتمام الطلب',
+      child: lines.isEmpty
+          ? Center(child: Padding(padding: const EdgeInsets.all(30), child: Column(children: [const Text('السلة فارغة'), const SizedBox(height: 10), FilledButton(onPressed: onBrowse, child: const Text('تصفح المنتجات'))])))
+          : Column(
+              children: [
+                ...lines.map((e) => ListTile(title: Text(e.key.name), subtitle: Text('${e.value} × ${_money(e.key.price)}'))),
+                const Divider(),
+                Text('الإجمالي: ${_money(total)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 15),
+                SizedBox(width: double.infinity, child: FilledButton(onPressed: onCheckout, child: const Text('تأكيد الطلب التجريبي'))),
+              ],
+            ),
+    );
+  }
+}
+
+// شاشة الطلبات
+class OrdersPage extends StatelessWidget {
+  final List<DemoOrder> orders;
+  final ValueChanged<DemoOrder> onOpen, onReorder;
+  const OrdersPage({super.key, required this.orders, required this.onOpen, required this.onReorder});
+
+  @override
+  Widget build(BuildContext context) => PageFrame(
+        title: 'الطلبات',
+        subtitle: 'سجل الطلبات السابقة',
+        child: Column(children: orders.map((o) => ListTile(title: Text('طلب #${o.id}'), subtitle: Text(o.status), trailing: Text(_money(o.total)), onTap: () => onOpen(o))).toList()),
+      );
+}
+
+// شاشة الحساب
+class ProfilePage extends StatelessWidget {
+  final ValueChanged<String> onNavigate;
+  const ProfilePage({super.key, required this.onNavigate});
+  @override
+  Widget build(BuildContext context) => PageFrame(
+        title: 'حساب التاجر',
+        subtitle: 'إدارة الحساب والمتجر',
+        child: Column(children: [
+          ListTile(leading: const Icon(Icons.store), title: const Text('معلومات المتجر'), onTap: () => onNavigate('معلومات المتجر')),
+          ListTile(leading: const Icon(Icons.logout, color: Colors.red), title: const Text('تسجيل الخروج', style: TextStyle(color: Colors.red)), onTap: () => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const AuthScreen()), (_) => false)),
+        ]),
+      );
+}
+
+class UtilityPage extends StatelessWidget {
+  final String title;
+  const UtilityPage({super.key, required this.title});
+  @override
+  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: Text(title)), body: Center(child: Text(title)));
+}
+
+class ProductDetailsPage extends StatelessWidget {
+  final Product product;
+  final ValueChanged<int> onAdd;
+  const ProductDetailsPage({super.key, required this.product, required this.onAdd});
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: Text(product.name)),
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(children: [
+            Text(product.description),
+            const Spacer(),
+            FilledButton(onPressed: () { onAdd(1); Navigator.pop(context); }, child: const Text('إضافة للسلة')),
+          ]),
+        ),
+      );
+}
+
+class OrderDetailsPage extends StatelessWidget {
+  final DemoOrder order;
+  final VoidCallback onReorder;
+  const OrderDetailsPage({super.key, required this.order, required this.onReorder});
+  @override
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: Text('طلب #${order.id}')),
+        body: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('حالة الطلب: ${order.status}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Text('طريقة الدفع: ${order.payment}', style: const TextStyle(color: muted)),
+              const Divider(height: 30),
+              const Text('المنتجات المطلوبة:', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Expanded(
+                child: ListView(
+                  children: order.lines.map((e) => ListTile(
+                        title: Text(e.key.name),
+                        trailing: Text('${e.value} × ${_money(e.key.price)}'),
+                      )).toList(),
+                ),
+              ),
+              FilledButton.icon(
+                onPressed: onReorder,
+                icon: const Icon(Icons.refresh),
+                label: const Text('إعادة طلب المنتجات'),
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
+class PageFrame extends StatelessWidget {
+  final String title, subtitle;
+  final Widget child;
+  const PageFrame({super.key, required this.title, required this.subtitle, required this.child});
+  @override
+  Widget build(BuildContext context) => CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: navy)),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: const TextStyle(color: muted, fontSize: 12)),
+                  const SizedBox(height: 20),
+                  child,
+                ],
+              ),
+            ),
+          ),
+        ],
+      );
+}
+
+class ProductListTile extends StatelessWidget {
+  final Product product;
+  final VoidCallback onTap, onAdd;
+  const ProductListTile({super.key, required this.product, required this.onTap, required this.onAdd});
+  @override
+  Widget build(BuildContext context) => Card(
+        child: ListTile(title: Text(product.name), subtitle: Text(_money(product.price)), trailing: IconButton(icon: const Icon(Icons.add_shopping_cart), onPressed: onAdd), onTap: onTap),
+      );
+}
+
+class ProductMiniCard extends StatelessWidget {
+  final Product product;
+  final VoidCallback onTap;
+  const ProductMiniCard({super.key, required this.product, required this.onTap});
+  @override
+  Widget build(BuildContext context)
