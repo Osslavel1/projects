@@ -340,7 +340,17 @@ class _MerchantShellState extends State<MerchantShell> {
     final pages = <Widget>[
       DashboardPage(orders: orders, cartCount: cartCount, onTab: (v) => setState(() => tab = v), onProduct: (p) => _productDetails(p)),
       CatalogPage(onAdd: add, onOpen: _productDetails),
-      OrdersPage(orders: orders, onOpen: _orderDetails, onReorder: (o) { for (final e in o.lines) add(e.key, e.value); setState(() => tab = 3); _toast(context, 'تمت إضافة المنتجات للسلة'); }),
+      OrdersPage(
+        orders: orders,
+        onOpen: _orderDetails,
+        onReorder: (o) {
+          for (final e in o.lines) {
+            add(e.key, e.value);
+          }
+          setState(() => tab = 3);
+          _toast(context, 'تمت إضافة المنتجات للسلة');
+        },
+      ),
       CartPage(cart: cart, onQty: setQty, total: cartTotal, onCheckout: placeOrder, onBrowse: () => setState(() => tab = 1)),
       const AiChatScreenTab(),
       ProfilePage(onNavigate: (destination) => _openUtility(destination)),
@@ -367,8 +377,18 @@ class _MerchantShellState extends State<MerchantShell> {
   }
 
   void _productDetails(Product p) => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailsPage(product: p, onAdd: (q) { add(p, q); _toast(context, 'تمت إضافة ${p.name} للسلة'); })));
-  void _orderDetails(DemoOrder o) => Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDetailsPage(order: o, onReorder: () { for (final e in o.lines) add(e.key, e.value); Navigator.pop(context); setState(() => tab = 3); })));
+  void _orderDetails(DemoOrder o) => Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDetailsPage(
+        order: o,
+        onReorder: () {
+          for (final e in o.lines) {
+            add(e.key, e.value);
+          }
+          Navigator.pop(context);
+          setState(() => tab = 3);
+        },
+      )));
   void _openUtility(String title) => Navigator.push(context, MaterialPageRoute(builder: (_) => UtilityPage(title: title)));
+  void _toast(String text) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text), behavior: SnackBarBehavior.floating));
 }
 
 // شاشة مساعد الذكاء الاصطناعي الذكي
@@ -645,9 +665,9 @@ class DashboardPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Row(children: [
-              Expanded(child: _metric('الطلبات', '${orders.length}', Icons.inventory_2_outlined, blue, () => onTab(2))),
+              Expanded(child: metricCard('الطلبات', '${orders.length}', Icons.inventory_2_outlined, blue, () => onTab(2))),
               const SizedBox(width: 10),
-              Expanded(child: _metric('السلة', '$cartCount', Icons.shopping_bag_outlined, teal, () => onTab(3))),
+              Expanded(child: metricCard('السلة', '$cartCount', Icons.shopping_bag_outlined, teal, () => onTab(3))),
             ]),
             const SizedBox(height: 20),
             const Text('منتجات مقترحة', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: navy)),
@@ -665,7 +685,7 @@ class DashboardPage extends StatelessWidget {
         ),
       );
 
-  Widget _metric(String label, String value, IconData icon, Color color, VoidCallback onTap) => Material(
+  Widget metricCard(String label, String value, IconData icon, Color color, VoidCallback onTap) => Material(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
@@ -700,7 +720,7 @@ class _CatalogPageState extends State<CatalogPage> {
   String query = '';
   @override
   Widget build(BuildContext context) {
-    final filtered = demoProducts.where((p) => '${p.name} ${p.sku}'.toLowerCase().contains(query.toLowerCase())).toList();
+    final filtered = demoProducts.where((p) => '${p.name}${p.sku}'.toLowerCase().contains(query.toLowerCase())).toList();
     return PageFrame(
       title: 'الكتالوج',
       subtitle: 'تصفح المنتجات المتاحة',
@@ -728,44 +748,4 @@ class CartPage extends StatelessWidget {
     final lines = cart.entries.map((e) => MapEntry(demoProducts.firstWhere((p) => p.id == e.key), e.value)).toList();
     return PageFrame(
       title: 'سلة المشتريات',
-      subtitle: 'راجع المنتجات قبل إتمام الطلب',
-      child: lines.isEmpty
-          ? Center(child: Padding(padding: const EdgeInsets.all(30), child: Column(children: [const Text('السلة فارغة'), const SizedBox(height: 10), FilledButton(onPressed: onBrowse, child: const Text('تصفح المنتجات'))])))
-          : Column(
-              children: [
-                ...lines.map((e) => ListTile(title: Text(e.key.name), subtitle: Text('${e.value} × ${_money(e.key.price)}'))),
-                const Divider(),
-                Text('الإجمالي: ${_money(total)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                const SizedBox(height: 15),
-                SizedBox(width: double.infinity, child: FilledButton(onPressed: onCheckout, child: const Text('تأكيد الطلب التجريبي'))),
-              ],
-            ),
-    );
-  }
-}
-
-// شاشة الطلبات
-class OrdersPage extends StatelessWidget {
-  final List<DemoOrder> orders;
-  final ValueChanged<DemoOrder> onOpen, onReorder;
-  const OrdersPage({super.key, required this.orders, required this.onOpen, required this.onReorder});
-
-  @override
-  Widget build(BuildContext context) => PageFrame(
-        title: 'الطلبات',
-        subtitle: 'سجل الطلبات السابقة',
-        child: Column(children: orders.map((o) => ListTile(title: Text('طلب #${o.id}'), subtitle: Text(o.status), trailing: Text(_money(o.total)), onTap: () => onOpen(o))).toList()),
-      );
-}
-
-// شاشة الحساب
-class ProfilePage extends StatelessWidget {
-  final ValueChanged<String> onNavigate;
-  const ProfilePage({super.key, required this.onNavigate});
-  @override
-  Widget build(BuildContext context) => PageFrame(
-        title: 'حساب التاجر',
-        subtitle: 'إدارة الحساب والمتجر',
-        child: Column(children: [
-          ListTile(leading: const Icon(Icons.store), title: const Text('معلومات المتجر'), onTap: () => onNavigate('معلومات المتجر')),
-          ListTile(leading: const Icon(Icons.logout, color: Colors.red), title: const Text('تسجيل الخروج', style: TextStyle(color: Colors.red)),
+      
