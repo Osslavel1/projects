@@ -71,6 +71,7 @@ class AuthScreen extends StatefulWidget {
   @override
   State<AuthScreen> createState() => _AuthScreenState();
 }
+
 class _AuthScreenState extends State<AuthScreen> {
   bool login = true, hidePassword = true, hideConfirmPassword = true, acceptedTerms = false;
   String businessType = 'متجر تجزئة';
@@ -107,12 +108,12 @@ class _AuthScreenState extends State<AuthScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 12),
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const BrandMark(size: 60),
-                        const SizedBox(width: 14),
-                        const Column(
+                        BrandMark(size: 60),
+                        SizedBox(width: 14),
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('NATCO', style: TextStyle(fontSize: 29, fontWeight: FontWeight.w900, letterSpacing: 2, color: navy)),
@@ -500,7 +501,7 @@ class _AiChatScreenTabState extends State<AiChatScreenTab> {
                 const SizedBox(width: 9),
                 Expanded(child: Text(error!, style: const TextStyle(color: Color(0xFF8D3029), fontSize: 12, height: 1.5))),
                 IconButton(onPressed: () => send(messages.isNotEmpty && messages.last.fromUser ? messages.last.text : null), icon: const Icon(Icons.refresh_rounded, color: Color(0xFFC43D32))),
-              ]),
+              ],
             ),
           Container(
             padding: const EdgeInsets.all(12),
@@ -693,6 +694,7 @@ class CatalogPage extends StatefulWidget {
   const CatalogPage({super.key, required this.onOpen, required this.onAdd});
   @override State<CatalogPage> createState() => _CatalogPageState();
 }
+
 class _CatalogPageState extends State<CatalogPage> {
   String query = '';
   @override
@@ -789,85 +791,4 @@ class ProductDetailsPage extends StatelessWidget {
           child: Column(children: [
             Text(product.description),
             const Spacer(),
-            FilledButton(onPressed: () { onAdd(1); Navigator.pop(context); }, child: const Text('إضافة للسلة')),
-          ]),
-        ),
-      );
-}
-
-class OrderDetailsPage extends StatelessWidget {
-  final DemoOrder order;
-  final VoidCallback onReorder;
-  const OrderDetailsPage({super.key, required this.order, required this.onReorder});
-  @override
-  Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: Text('طلب #${order.id}')), body: Center(child: Text('حالة الطلب: ${order.status}')));
-}
-
-class PageFrame extends StatelessWidget {
-  final String title, subtitle;
-  final Widget child;
-  const PageFrame({super.key, required this.title, required this.subtitle, required this.child});
-  @override
-  Widget build(BuildContext context) => CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: navy)),
-                  const SizedBox(height: 4),
-                  Text(subtitle, style: const TextStyle(color: muted, fontSize: 12)),
-                  const SizedBox(height: 20),
-                  child,
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-}
-
-class ProductListTile extends StatelessWidget {
-  final Product product;
-  final VoidCallback onTap, onAdd;
-  const ProductListTile({super.key, required this.product, required this.onTap, required this.onAdd});
-  @override
-  Widget build(BuildContext context) => Card(
-        child: ListTile(title: Text(product.name), subtitle: Text(_money(product.price)), trailing: IconButton(icon: const Icon(Icons.add_shopping_cart), onPressed: onAdd), onTap: onTap),
-      );
-}
-
-class ProductMiniCard extends StatelessWidget {
-  final Product product;
-  final VoidCallback onTap;
-  const ProductMiniCard({super.key, required this.product, required this.onTap});
-  @override
-  Widget build(BuildContext context) => InkWell(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), border: Border.all(color: line)),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(child: Center(child: Icon(product.icon, size: 40, color: blue))),
-            Text(product.name, maxLines: 1, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-            Text(_money(product.price), style: const TextStyle(color: blue, fontSize: 11)),
-          ]),
-        ),
-      );
-}
-
-class _BadgeIcon extends StatelessWidget {
-  final IconData icon; 
-  final int count;
-  const _BadgeIcon({required this.icon, required this.count});
-  @override
-  Widget build(BuildContext context) => Stack(clipBehavior: Clip.none, children: [
-        Icon(icon),
-        if (count > 0) Positioned(top: -5, right: -8, child: Container(padding: const EdgeInsets.all(3), decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle), child: Text('$count', style: const TextStyle(color: Colors.white, fontSize: 8)))),
-      ]);
-}
-
-String _money(double v) => '${v.toStringAsFixed(0)} ر.ي';
-void _toast(BuildContext context, String text) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text), behavior: SnackBarBehavior.floating));
+            FilledButton(onPressed: () { onAdd(1); Navigator.pop(context); }, child: const
