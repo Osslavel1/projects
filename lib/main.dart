@@ -896,4 +896,29 @@ class ProductMiniCard extends StatelessWidget {
   final VoidCallback onTap;
   const ProductMiniCard({super.key, required this.product, required this.onTap});
   @override
-  Widget build(BuildContext context)
+  Widget build(BuildContext context) => InkWell(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), border: Border.all(color: line)),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(child: Center(child: Icon(product.icon, size: 40, color: blue))),
+            Text(product.name, maxLines: 1, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+            Text(_money(product.price), style: const TextStyle(color: blue, fontSize: 11)),
+          ]),
+        ),
+      );
+}
+
+class _BadgeIcon extends StatelessWidget {
+  final IconData icon; 
+  final int count;
+  const _BadgeIcon({required this.icon, required this.count});
+  @override
+  Widget build(BuildContext context) => Stack(clipBehavior: Clip.none, children: [
+        Icon(icon),
+        if (count > 0) Positioned(top: -5, right: -8, child: Container(padding: const EdgeInsets.all(3), decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle), child: Text('$count', style: const TextStyle(color: Colors.white, fontSize: 8)))),
+      ]);
+}
+
+String _money(double v) => '${v.toStringAsFixed(0)} ر.ي';
